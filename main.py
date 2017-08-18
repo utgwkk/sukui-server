@@ -62,6 +62,18 @@ def build_image_info(dic):
             },
         }
 
+def build_range_query(max_id, since_id):
+    if max_id is not None:
+        if since_id is not None:
+            return f'i.id BETWEEN {since_id} AND {max_id}'
+        else:
+            return f'i.id <= {max_id}'
+    else:
+        if since_id is not None:
+            return f'i.id > {since_id}'
+        else:
+            return ''
+
 @app.route('/image/<int:image_id>')
 def get_image(image_id):
     image_id = int(image_id)
@@ -89,16 +101,7 @@ def get_images():
     count = int(request.args.get('count', 20))
     max_id = request.args.get('max_id')
     since_id = request.args.get('since_id')
-    if max_id is not None:
-        if since_id is not None:
-            range_query = f'WHERE i.id BETWEEN {since_id} AND {max_id}'
-        else:
-            range_query = f'WHERE i.id <= {max_id}'
-    else:
-        if since_id is not None:
-            range_query = f'WHERE i.id > {since_id}'
-        else:
-            range_query = f''
+    range_query = build_range_query(max_id, since_id)
     query = f'''
     SELECT
         i.id AS id
@@ -110,7 +113,7 @@ def get_images():
     FROM images i
     INNER JOIN image_info ii
     ON i.id = ii.image_id
-    {range_query}
+    {'WHERE ' + range_query if range_query else ''}
     ORDER BY id DESC LIMIT %s
     '''
     c.execute(query, (count,))

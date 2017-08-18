@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "83fa6c3452570a5dad07e58b69fc67f33a7fac41635160f3c60438b2478ef67a"
+            "sha256": "14508cf3792613e99ea2c80a588d4e1a683ec3815ea38fe004454d35960b157c"
         },
         "requires": {},
         "sources": [
@@ -29,6 +29,9 @@
         },
         "mysqlclient": {
             "version": "==1.3.10"
+        },
+        "python-dotenv": {
+            "version": "==0.6.5"
         },
         "werkzeug": {
             "version": "==0.12.2"

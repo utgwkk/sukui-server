@@ -122,5 +122,37 @@ def get_images():
         return Json({'ok': False, 'message': 'invalid parameters'})
     return Json({'ok': True, 'data': [build_image_info(info) for info in result]})
 
+@app.route('/images/search')
+def search_images():
+    count = int(request.args.get('count', 20))
+    max_id = request.args.get('max_id')
+    since_id = request.args.get('since_id')
+    keyword  = f'%{request.args.get("keyword", "")}%'
+    if keyword == '%%':
+        return Json({'ok': False, 'message': 'you must specify a keyword'})
+
+    range_query = build_range_query(max_id, since_id)
+    query = f'''
+    SELECT
+        i.id AS id
+      , i.filename AS filename
+      , i.created_at AS created_at
+      , ii.id AS image_info_id
+      , ii.comment AS comment
+      , ii.source AS source
+    FROM images i
+    INNER JOIN image_info ii
+    ON i.id = ii.image_id
+    WHERE
+        ii.comment LIKE %s
+    {'AND ' + range_query if range_query else ''}
+    ORDER BY id DESC LIMIT %s
+    '''
+    c.execute(query, (keyword, count,))
+    result = c.fetchall()
+    if result is None:
+        return Json({'ok': False, 'message': 'invalid parameters'})
+    return Json({'ok': True, 'data': [build_image_info(info) for info in result]})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

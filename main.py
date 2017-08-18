@@ -6,14 +6,25 @@ from dotenv import load_dotenv, find_dotenv
 from flask import Flask, Response, request
 load_dotenv(find_dotenv())
 app = Flask(__name__)
-conn = MySQLdb.connect(
-    user=os.environ['DB_USER'],
-    passwd=os.environ['DB_PASSWD'],
-    host=os.environ['DB_HOST'],
-    db=os.environ['DB_NAME'],
-    use_unicode=True,
-    charset='utf8mb4',
-)
+
+if os.environ.get('DB_SOCKET'):
+    conn = MySQLdb.connect(
+        user=os.environ['DB_USER'],
+        passwd=os.environ['DB_PASSWD'],
+        unix_socket=os.environ['DB_SOCKET'],
+        db=os.environ['DB_NAME'],
+        use_unicode=True,
+        charset='utf8mb4',
+    )
+else:
+    conn = MySQLdb.connect(
+        user=os.environ['DB_USER'],
+        passwd=os.environ['DB_PASSWD'],
+        host=os.environ['DB_HOST'],
+        db=os.environ['DB_NAME'],
+        use_unicode=True,
+        charset='utf8mb4',
+    )
 c = conn.cursor(MySQLdb.cursors.DictCursor)
 
 IMAGE_ENDPOINT = os.environ['IMAGE_ENDPOINT']

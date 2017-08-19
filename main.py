@@ -92,7 +92,7 @@ def get_image(image_id):
       , ii.comment AS comment
       , ii.source AS source
     FROM images i
-    INNER JOIN image_info ii
+    LEFT JOIN image_info ii
     ON i.id = ii.image_id
     WHERE i.id = %s
     '''
@@ -122,7 +122,7 @@ def get_images():
       , ii.comment AS comment
       , ii.source AS source
     FROM images i
-    INNER JOIN image_info ii
+    LEFT JOIN image_info ii
     ON i.id = ii.image_id
     {'WHERE ' + range_query if range_query else ''}
     ORDER BY id DESC LIMIT %s
@@ -164,7 +164,7 @@ def search_images():
       , ii.comment AS comment
       , ii.source AS source
     FROM images i
-    INNER JOIN image_info ii
+    LEFT JOIN image_info ii
     ON i.id = ii.image_id
     WHERE
         ii.comment LIKE %s
@@ -180,7 +180,7 @@ def search_images():
     SELECT
         COUNT(*) AS cnt
     FROM images i
-    INNER JOIN image_info ii
+    LEFT JOIN image_info ii
     ON
         i.id = ii.image_id
     WHERE

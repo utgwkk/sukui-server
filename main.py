@@ -132,7 +132,14 @@ def get_images():
     result = c.fetchall()
     if result is None:
         return Json({'ok': False, 'message': 'invalid parameters'})
-    return Json({'ok': True, 'data': [build_image_info(info) for info in result]})
+    query = f'''
+    SELECT
+        COUNT(*) AS cnt
+    FROM images
+    '''
+    c.execute(query)
+    count = c.fetchone()['cnt']
+    return Json({'ok': True, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
 
 @app.route('/sukui/api/images/search')
 def search_images():
@@ -169,7 +176,19 @@ def search_images():
     result = c.fetchall()
     if result is None:
         return Json({'ok': False, 'message': 'invalid parameters'})
-    return Json({'ok': True, 'data': [build_image_info(info) for info in result]})
+    query = f'''
+    SELECT
+        COUNT(*) AS cnt
+    FROM images i
+    INNER JOIN image_info ii
+    ON
+        i.id = ii.image_id
+    WHERE
+        ii.comment LIKE %s
+    '''
+    c.execute(query, (keyword,))
+    count = c.fetchone()['cnt']
+    return Json({'ok': True, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
 
 if __name__ == '__main__':
     app.run()

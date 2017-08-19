@@ -3,32 +3,38 @@ import json
 import MySQLdb
 from datetime import datetime
 from dotenv import load_dotenv, find_dotenv
-from flask import Flask, Response, request
+from flask import Flask, Response, request, g
 load_dotenv(find_dotenv())
 app = Flask(__name__)
 
-if os.environ.get('DB_SOCKET'):
-    conn = MySQLdb.connect(
-        user=os.environ['DB_USER'],
-        passwd=os.environ['DB_PASSWD'],
-        unix_socket=os.environ['DB_SOCKET'],
-        db=os.environ['DB_NAME'],
-        use_unicode=True,
-        charset='utf8mb4',
-    )
-else:
-    conn = MySQLdb.connect(
-        user=os.environ['DB_USER'],
-        passwd=os.environ['DB_PASSWD'],
-        host=os.environ['DB_HOST'],
-        db=os.environ['DB_NAME'],
-        use_unicode=True,
-        charset='utf8mb4',
-    )
-c = conn.cursor(MySQLdb.cursors.DictCursor)
-
 IMAGE_ENDPOINT = os.environ['IMAGE_ENDPOINT']
 THUMBNAIL_ENDPOINT = os.environ['THUMBNAIL_ENDPOINT']
+
+def connect_db():
+    if os.environ.get('DB_SOCKET'):
+        conn = MySQLdb.connect(
+            user=os.environ['DB_USER'],
+            passwd=os.environ['DB_PASSWD'],
+            unix_socket=os.environ['DB_SOCKET'],
+            db=os.environ['DB_NAME'],
+            use_unicode=True,
+            charset='utf8mb4',
+        )
+    else:
+        conn = MySQLdb.connect(
+            user=os.environ['DB_USER'],
+            passwd=os.environ['DB_PASSWD'],
+            host=os.environ['DB_HOST'],
+            db=os.environ['DB_NAME'],
+            use_unicode=True,
+            charset='utf8mb4',
+        )
+    return conn
+
+def db():
+    if not hasattr(g, 'db_conn'):
+        g.db_conn = connect_db()
+    return g.db_conn.cursor(MySQLdb.cursors.DictCursor)
 
 def Json(obj):
     def serialize(obj):
@@ -90,6 +96,7 @@ def get_image(image_id):
     ON i.id = ii.image_id
     WHERE i.id = %s
     '''
+    c = db()
     c.execute(query, (image_id,))
     result = c.fetchone()
     if result is None:
@@ -120,6 +127,7 @@ def get_images():
     {'WHERE ' + range_query if range_query else ''}
     ORDER BY id DESC LIMIT %s
     '''
+    c = db()
     c.execute(query, (count,))
     result = c.fetchall()
     if result is None:
@@ -156,6 +164,7 @@ def search_images():
     {'AND ' + range_query if range_query else ''}
     ORDER BY id DESC LIMIT %s
     '''
+    c = db()
     c.execute(query, (keyword, count,))
     result = c.fetchall()
     if result is None:

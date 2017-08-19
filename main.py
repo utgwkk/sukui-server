@@ -70,16 +70,16 @@ def build_image_info(dic):
         }
 
 def build_range_query(max_id, since_id):
-    if max_id is not None:
-        if since_id is not None:
-            return f'i.id BETWEEN {since_id} AND {max_id}'
-        else:
-            return f'i.id <= {max_id}'
-    else:
-        if since_id is not None:
-            return f'i.id > {since_id}'
-        else:
+    if max_id is None:
+        if since_id is None:
             return ''
+        else:
+            return f'i.id > {since_id}'
+    else:
+        if since_id is None:
+            return f'i.id <= {max_id}'
+        else:
+            return f'i.id > {since_id} AND i.id <= {max_id}'
 
 @app.route('/sukui/api/image/<int:image_id>')
 def get_image(image_id):
@@ -107,11 +107,14 @@ def get_image(image_id):
 @app.route('/sukui/api/images')
 def get_images():
     count = int(request.args.get('count', 20))
+    _reversed = request.args.get('reversed', '0') == '1'
     try:
         max_id = int(request.args.get('max_id'))
-        since_id = int(request.args.get('since_id'))
     except Exception:
         max_id = None
+    try:
+        since_id = int(request.args.get('since_id'))
+    except Exception:
         since_id = None
     range_query = build_range_query(max_id, since_id)
     query = f'''
@@ -125,8 +128,8 @@ def get_images():
     FROM images i
     LEFT JOIN image_info ii
     ON i.id = ii.image_id
-    {'WHERE ' + range_query if range_query else ''}
-    ORDER BY id DESC LIMIT %s
+    {('WHERE ' + range_query) if range_query else ''}
+    ORDER BY id {'ASC' if _reversed else 'DESC'} LIMIT %s
     '''
     t_s = time.time()
     c = db()
@@ -147,12 +150,17 @@ def get_images():
 @app.route('/sukui/api/images/search')
 def search_images():
     count = int(request.args.get('count', 20))
+    _reversed = request.args.get('reversed', '0') == '1'
+
     try:
         max_id = int(request.args.get('max_id'))
-        since_id = int(request.args.get('since_id'))
     except Exception:
         max_id = None
+    try:
+        since_id = int(request.args.get('since_id'))
+    except Exception:
         since_id = None
+
     keyword  = request.args.get("keyword")
     if keyword is None:
         return Json({'ok': False, 'message': 'you must specify a keyword'})
@@ -171,8 +179,8 @@ def search_images():
     ON i.id = ii.image_id
     WHERE
         MATCH (ii.comment) AGAINST (%s IN BOOLEAN MODE)
-    {'AND ' + range_query if range_query else ''}
-    ORDER BY id DESC LIMIT %s
+    {('AND ' + range_query) if range_query else ''}
+    ORDER BY id {'ASC' if _reversed else 'DESC'} LIMIT %s
     '''
     c = db()
     t_s = time.time()

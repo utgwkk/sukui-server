@@ -150,8 +150,8 @@ def search_images():
     except Exception:
         max_id = None
         since_id = None
-    keyword  = f'%{request.args.get("keyword", "")}%'
-    if keyword == '%%':
+    keyword  = request.args.get("keyword")
+    if keyword is None:
         return Json({'ok': False, 'message': 'you must specify a keyword'})
 
     range_query = build_range_query(max_id, since_id)
@@ -167,12 +167,12 @@ def search_images():
     LEFT JOIN image_info ii
     ON i.id = ii.image_id
     WHERE
-        ii.comment LIKE %s
+        MATCH (ii.comment) AGAINST ('"{MySQLdb.escape_string(keyword).decode('utf-8')}"' IN BOOLEAN MODE)
     {'AND ' + range_query if range_query else ''}
     ORDER BY id DESC LIMIT %s
     '''
     c = db()
-    c.execute(query, (keyword, count,))
+    c.execute(query, (count,))
     result = c.fetchall()
     if result is None:
         return Json({'ok': False, 'message': 'invalid parameters'})
@@ -184,9 +184,9 @@ def search_images():
     ON
         i.id = ii.image_id
     WHERE
-        ii.comment LIKE %s
+        MATCH (ii.comment) AGAINST ('"{MySQLdb.escape_string(keyword).decode('utf-8')}"' IN BOOLEAN MODE)
     '''
-    c.execute(query, (keyword,))
+    c.execute(query)
     count = c.fetchone()['cnt']
     return Json({'ok': True, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
 

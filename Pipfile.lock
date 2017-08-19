@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "14508cf3792613e99ea2c80a588d4e1a683ec3815ea38fe004454d35960b157c"
+            "sha256": "23071d1c197b3c213442ada77a9c02282bb19eb2fda0faa1faef3905f8326297"
         },
         "requires": {},
         "sources": [
@@ -32,6 +32,9 @@
         },
         "python-dotenv": {
             "version": "==0.6.5"
+        },
+        "uwsgi": {
+            "version": "==2.0.15"
         },
         "werkzeug": {
             "version": "==0.12.2"

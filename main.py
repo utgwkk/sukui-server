@@ -155,4 +155,4 @@ def search_images():
     return Json({'ok': True, 'data': [build_image_info(info) for info in result]})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run()

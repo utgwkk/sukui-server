@@ -170,13 +170,13 @@ def search_images():
     LEFT JOIN image_info ii
     ON i.id = ii.image_id
     WHERE
-        MATCH (ii.comment) AGAINST ('"{MySQLdb.escape_string(keyword).decode('utf-8')}"' IN BOOLEAN MODE)
+        MATCH (ii.comment) AGAINST (%s IN BOOLEAN MODE)
     {'AND ' + range_query if range_query else ''}
     ORDER BY id DESC LIMIT %s
     '''
     c = db()
     t_s = time.time()
-    c.execute(query, (count,))
+    c.execute(query, (keyword, count,))
     result = c.fetchall()
     if result is None:
         return Json({'ok': False, 'message': 'invalid parameters'})
@@ -188,9 +188,9 @@ def search_images():
     ON
         i.id = ii.image_id
     WHERE
-        MATCH (ii.comment) AGAINST ('"{MySQLdb.escape_string(keyword).decode('utf-8')}"' IN BOOLEAN MODE)
+        MATCH (ii.comment) AGAINST (%s IN BOOLEAN MODE)
     '''
-    c.execute(query)
+    c.execute(query, (keyword,))
     count = c.fetchone()['cnt']
     t_e = time.time()
     return Json({'ok': True, 'elapsed_time': t_e - t_s, 'whole_count': count, 'data': [build_image_info(info) for info in result]})

@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import MySQLdb
 from datetime import datetime
@@ -127,6 +128,7 @@ def get_images():
     {'WHERE ' + range_query if range_query else ''}
     ORDER BY id DESC LIMIT %s
     '''
+    t_s = time.time()
     c = db()
     c.execute(query, (count,))
     result = c.fetchall()
@@ -139,7 +141,8 @@ def get_images():
     '''
     c.execute(query)
     count = c.fetchone()['cnt']
-    return Json({'ok': True, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
+    t_e = time.time()
+    return Json({'ok': True, 'elapsed_time': t_e - t_s, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
 
 @app.route('/sukui/api/images/search')
 def search_images():
@@ -172,6 +175,7 @@ def search_images():
     ORDER BY id DESC LIMIT %s
     '''
     c = db()
+    t_s = time.time()
     c.execute(query, (count,))
     result = c.fetchall()
     if result is None:
@@ -188,7 +192,8 @@ def search_images():
     '''
     c.execute(query)
     count = c.fetchone()['cnt']
-    return Json({'ok': True, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
+    t_e = time.time()
+    return Json({'ok': True, 'elapsed_time': t_e - t_s, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
 
 if __name__ == '__main__':
     app.run()

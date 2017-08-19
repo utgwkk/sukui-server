@@ -99,8 +99,12 @@ def get_image(image_id):
 @app.route('/sukui/api/images')
 def get_images():
     count = int(request.args.get('count', 20))
-    max_id = request.args.get('max_id')
-    since_id = request.args.get('since_id')
+    try:
+        max_id = int(request.args.get('max_id'))
+        since_id = int(request.args.get('since_id'))
+    except TypeError:
+        max_id = None
+        since_id = None
     range_query = build_range_query(max_id, since_id)
     query = f'''
     SELECT
@@ -125,8 +129,12 @@ def get_images():
 @app.route('/sukui/api/images/search')
 def search_images():
     count = int(request.args.get('count', 20))
-    max_id = request.args.get('max_id')
-    since_id = request.args.get('since_id')
+    try:
+        max_id = int(request.args.get('max_id'))
+        since_id = int(request.args.get('since_id'))
+    except TypeError:
+        max_id = None
+        since_id = None
     keyword  = f'%{request.args.get("keyword", "")}%'
     if keyword == '%%':
         return Json({'ok': False, 'message': 'you must specify a keyword'})

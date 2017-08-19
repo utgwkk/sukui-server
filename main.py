@@ -85,7 +85,7 @@ def build_range_query(max_id, since_id):
 def get_image(image_id):
     image_id = int(image_id)
     query = '''
-    SELECT
+    SELECT SQL_CACHE
         i.id AS id
       , i.filename AS filename
       , i.created_at AS created_at
@@ -115,7 +115,7 @@ def get_images():
         since_id = None
     range_query = build_range_query(max_id, since_id)
     query = f'''
-    SELECT
+    SELECT SQL_CACHE
         i.id AS id
       , i.filename AS filename
       , i.created_at AS created_at
@@ -135,7 +135,7 @@ def get_images():
     if result is None:
         return Json({'ok': False, 'message': 'invalid parameters'})
     query = f'''
-    SELECT
+    SELECT SQL_CACHE
         COUNT(*) AS cnt
     FROM images
     '''

@@ -74,7 +74,7 @@ def build_range_query(max_id, since_id):
         else:
             return ''
 
-@app.route('/image/<int:image_id>')
+@app.route('/sukui/api/image/<int:image_id>')
 def get_image(image_id):
     image_id = int(image_id)
     query = '''
@@ -96,7 +96,7 @@ def get_image(image_id):
         return Json({'ok': False, 'message': 'image_not_found'})
     return Json({'ok': True, 'data': build_image_info(result)})
 
-@app.route('/images')
+@app.route('/sukui/api/images')
 def get_images():
     count = int(request.args.get('count', 20))
     max_id = request.args.get('max_id')
@@ -122,7 +122,7 @@ def get_images():
         return Json({'ok': False, 'message': 'invalid parameters'})
     return Json({'ok': True, 'data': [build_image_info(info) for info in result]})
 
-@app.route('/images/search')
+@app.route('/sukui/api/images/search')
 def search_images():
     count = int(request.args.get('count', 20))
     max_id = request.args.get('max_id')

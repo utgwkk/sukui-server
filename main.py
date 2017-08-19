@@ -102,7 +102,7 @@ def get_images():
     try:
         max_id = int(request.args.get('max_id'))
         since_id = int(request.args.get('since_id'))
-    except TypeError:
+    except ValueError:
         max_id = None
         since_id = None
     range_query = build_range_query(max_id, since_id)
@@ -132,7 +132,7 @@ def search_images():
     try:
         max_id = int(request.args.get('max_id'))
         since_id = int(request.args.get('since_id'))
-    except TypeError:
+    except ValueError:
         max_id = None
         since_id = None
     keyword  = f'%{request.args.get("keyword", "")}%'

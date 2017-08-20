@@ -106,7 +106,14 @@ def get_image(image_id):
 
 @app.route('/sukui/api/images')
 def get_images():
-    count = int(request.args.get('count', 20))
+    try:
+        count = int(request.args.get('count', 20))
+    except Exception:
+        return Json({'ok': False, 'message': 'invalid count parameter'})
+
+    if not 0 < count <= 200:
+        return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'})
+
     _reversed = request.args.get('reversed', '0') == '1'
     try:
         max_id = int(request.args.get('max_id'))
@@ -149,7 +156,13 @@ def get_images():
 
 @app.route('/sukui/api/images/search')
 def search_images():
-    count = int(request.args.get('count', 20))
+    try:
+        count = int(request.args.get('count', 20))
+    except Exception:
+        return Json({'ok': False, 'message': 'invalid count parameter'})
+
+    if not 0 < count <= 200:
+        return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'})
     _reversed = request.args.get('reversed', '0') == '1'
 
     try:

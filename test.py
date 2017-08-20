@@ -131,6 +131,18 @@ class AppTest(unittest.TestCase):
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
+    def test_ngram(self):
+        self.assertEqual(
+            '+美玲',
+            main.ngram('美玲')
+        )
+
+    def test_ngram_2(self):
+        self.assertEqual(
+            '+しょ +ょう +うさ +さち',
+            main.ngram('しょうさち')
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -69,6 +69,10 @@ def build_image_info(dic):
             },
         }
 
+def ngram(text):
+    without_space = [x for x in text if x not in ' \t\r\n']
+    return '+' +  ' +'.join([x + y for x, y in zip(without_space, without_space[1:])])
+
 def build_range_query(max_id, since_id):
     if max_id is None:
         if since_id is None:
@@ -177,6 +181,7 @@ def search_images():
     keyword  = request.args.get("keyword")
     if keyword is None:
         return Json({'ok': False, 'message': 'you must specify a keyword'}, 400)
+    ngram_keyword = ngram(keyword)
 
     range_query = build_range_query(max_id, since_id)
     query = f'''
@@ -191,13 +196,14 @@ def search_images():
     LEFT JOIN image_info ii
     ON i.id = ii.image_id
     WHERE
-        MATCH (ii.comment) AGAINST (%s IN BOOLEAN MODE)
+        MATCH (ii.comment_ngram) AGAINST (%s IN BOOLEAN MODE)
+    AND ii.comment LIKE %s
     {('AND ' + range_query) if range_query else ''}
     ORDER BY id {'ASC' if _reversed else 'DESC'} LIMIT %s
     '''
     c = db()
     t_s = time.time()
-    c.execute(query, (keyword, count,))
+    c.execute(query, (ngram_keyword, f'%{keyword}%', count,))
     result = c.fetchall()
     if result is None:
         return Json({'ok': False, 'message': 'invalid parameters'}, 400)
@@ -209,9 +215,10 @@ def search_images():
     ON
         i.id = ii.image_id
     WHERE
-        MATCH (ii.comment) AGAINST (%s IN BOOLEAN MODE)
+        MATCH (ii.comment_ngram) AGAINST (%s IN BOOLEAN MODE)
+    AND ii.comment LIKE %s
     '''
-    c.execute(query, (keyword,))
+    c.execute(query, (ngram_keyword, f'%{keyword}%'))
     count = c.fetchone()['cnt']
     t_e = time.time()
     return Json({'ok': True, 'elapsed_time': t_e - t_s, 'whole_count': count, 'data': [build_image_info(info) for info in result]})

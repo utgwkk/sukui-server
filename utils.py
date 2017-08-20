@@ -89,7 +89,7 @@ def ngram(text):
 
 # decorators
 
-def set_count(func):
+def set_params(func):
     @wraps(func)
     def inner(*args, **kwargs):
         try:
@@ -100,27 +100,15 @@ def set_count(func):
         if not 0 < count <= 200:
             return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'}, 400)
 
-        return func(count, *args, **kwargs)
-    return inner
-
-def set_max_id(func):
-    @wraps(func)
-    def inner(*args, **kwargs):
         try:
             max_id = int(request.args.get('max_id'))
         except Exception:
             max_id = None
 
-        return func(max_id, *args, **kwargs)
-    return inner
-
-def set_since_id(func):
-    @wraps(func)
-    def inner(*args, **kwargs):
         try:
             since_id = int(request.args.get('since_id'))
         except Exception:
             since_id = None
 
-        return func(since_id, *args, **kwargs)
+        return func(count, max_id, since_id, *args, **kwargs)
     return inner

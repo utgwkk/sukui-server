@@ -27,9 +27,7 @@ def get_image(image_id):
     return Json({'ok': True, 'data': build_image_info(result)})
 
 @app.route('/sukui/api/images')
-@set_since_id
-@set_max_id
-@set_count
+@set_params
 def get_images(count, max_id, since_id):
     _reversed = request.args.get('reversed', '0') == '1'
 
@@ -65,9 +63,7 @@ def get_images(count, max_id, since_id):
     return Json({'ok': True, 'elapsed_time': t_e - t_s, 'whole_count': count, 'data': [build_image_info(info) for info in result]})
 
 @app.route('/sukui/api/images/search')
-@set_since_id
-@set_max_id
-@set_count
+@set_params
 def search_images(count, max_id, since_id):
     _reversed = request.args.get('reversed', '0') == '1'
 

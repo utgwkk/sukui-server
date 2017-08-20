@@ -89,10 +89,16 @@ def build_keyword_query(keyword):
             ii.comment NOT LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
             ''')
         else:
-            ret.append(f'''
-            MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(ngram(kw)).decode('utf-8')}' IN BOOLEAN MODE)
-            AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
-            ''')
+            if '+' in kw or '-' in kw or '(' in kw or ')' in kw:
+                ret.append(f'''
+                MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(kw).decode('utf-8')}' IN NATURAL LANGUAGE MODE)
+                AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
+                ''')
+            else:
+                ret.append(f'''
+                MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(ngram(kw)).decode('utf-8')}' IN BOOLEAN MODE)
+                AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
+                ''')
     return 'AND '.join(ret)
 
 def ngram(text):

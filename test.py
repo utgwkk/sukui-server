@@ -143,6 +143,12 @@ class AppTest(unittest.TestCase):
             main.ngram('しょうさち')
         )
 
+    def test_ngram_3(self):
+        self.assertEqual(
+            '薫*',
+            main.ngram('薫')
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

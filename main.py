@@ -70,8 +70,11 @@ def build_image_info(dic):
         }
 
 def ngram(text):
-    without_space = [x for x in text if x not in ' \t\r\n']
-    return '+' +  ' +'.join([x + y for x, y in zip(without_space, without_space[1:])])
+    if len(text) <= 1:
+        return f'{text}*'
+    else:
+        without_space = [x for x in text if x not in ' \t\r\n']
+        return '+' +  ' +'.join([x + y for x, y in zip(without_space, without_space[1:])])
 
 def build_range_query(max_id, since_id):
     if max_id is None:

@@ -13,7 +13,7 @@ THUMBNAIL_ENDPOINT = os.environ['THUMBNAIL_ENDPOINT']
 
 def connect_db():
     if os.environ.get('DB_SOCKET'):
-        conn = MySQLdb.connect(
+        return MySQLdb.connect(
             user=os.environ['DB_USER'],
             passwd=os.environ['DB_PASSWD'],
             unix_socket=os.environ['DB_SOCKET'],
@@ -22,7 +22,7 @@ def connect_db():
             charset='utf8mb4',
         )
     else:
-        conn = MySQLdb.connect(
+        return MySQLdb.connect(
             user=os.environ['DB_USER'],
             passwd=os.environ['DB_PASSWD'],
             host=os.environ['DB_HOST'],
@@ -30,7 +30,6 @@ def connect_db():
             use_unicode=True,
             charset='utf8mb4',
         )
-    return conn
 
 def db():
     if not hasattr(g, 'db_conn'):

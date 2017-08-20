@@ -82,23 +82,40 @@ def build_range_query(max_id, since_id):
 def build_keyword_query(keyword):
     ret = []
     keywords = keyword.split()
+    next_or = False
+
     for kw in keywords:
         if kw.startswith('-'):
             kw = kw[1:]
             ret.append(f'''
             ii.comment NOT LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
             ''')
+        elif kw == 'OR':
+            next_or = True
         else:
+            query = ''
+            if next_or:
+                query += ' OR ('
+
             if '+' in kw or '-' in kw or '(' in kw or ')' in kw:
-                ret.append(f'''
+                query += f'''
                 MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(kw).decode('utf-8')}' IN NATURAL LANGUAGE MODE)
                 AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
-                ''')
+                '''
             else:
-                ret.append(f'''
+                query += f'''
                 MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(ngram(kw)).decode('utf-8')}' IN BOOLEAN MODE)
                 AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
-                ''')
+                '''
+            if next_or:
+                query += ') '
+                next_or = False
+                if len(ret) > 0:
+                    ret[-1] += query
+                else:
+                    ret.append(query.replace(' OR (', '('))
+            else:
+                ret.append(query)
     return 'AND '.join(ret)
 
 def ngram(text):

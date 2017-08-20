@@ -37,13 +37,13 @@ def db():
         g.db_conn = connect_db()
     return g.db_conn.cursor(MySQLdb.cursors.DictCursor)
 
-def Json(obj):
+def Json(obj, status_code=200):
     def serialize(obj):
         # enable to serialize datetime object
         if isinstance(obj, datetime):
             return obj.isoformat()
         raise TypeError(f"Object of type '{type(obj).name}' is not JSON serializable")
-    return Response(json.dumps(obj, default=serialize), mimetype='application/json')
+    return Response(json.dumps(obj, default=serialize), mimetype='application/json'), status_code
 
 def build_image_info(dic):
     if dic['image_info_id'] is None:
@@ -101,7 +101,7 @@ def get_image(image_id):
     c.execute(query, (image_id,))
     result = c.fetchone()
     if result is None:
-        return Json({'ok': False, 'message': 'image_not_found'})
+        return Json({'ok': False, 'message': 'image_not_found'}, 404)
     return Json({'ok': True, 'data': build_image_info(result)})
 
 @app.route('/sukui/api/images')
@@ -109,10 +109,10 @@ def get_images():
     try:
         count = int(request.args.get('count', 20))
     except Exception:
-        return Json({'ok': False, 'message': 'invalid count parameter'})
+        return Json({'ok': False, 'message': 'invalid count parameter'}, 400)
 
     if not 0 < count <= 200:
-        return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'})
+        return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'}, 400)
 
     _reversed = request.args.get('reversed', '0') == '1'
     try:
@@ -143,7 +143,7 @@ def get_images():
     c.execute(query, (count,))
     result = c.fetchall()
     if result is None:
-        return Json({'ok': False, 'message': 'invalid parameters'})
+        return Json({'ok': False, 'message': 'invalid parameters'}, 400)
     query = f'''
     SELECT SQL_CACHE
         COUNT(*) AS cnt
@@ -159,10 +159,10 @@ def search_images():
     try:
         count = int(request.args.get('count', 20))
     except Exception:
-        return Json({'ok': False, 'message': 'invalid count parameter'})
+        return Json({'ok': False, 'message': 'invalid count parameter'}, 400)
 
     if not 0 < count <= 200:
-        return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'})
+        return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'}, 400)
     _reversed = request.args.get('reversed', '0') == '1'
 
     try:
@@ -176,7 +176,7 @@ def search_images():
 
     keyword  = request.args.get("keyword")
     if keyword is None:
-        return Json({'ok': False, 'message': 'you must specify a keyword'})
+        return Json({'ok': False, 'message': 'you must specify a keyword'}, 400)
 
     range_query = build_range_query(max_id, since_id)
     query = f'''
@@ -200,7 +200,7 @@ def search_images():
     c.execute(query, (keyword, count,))
     result = c.fetchall()
     if result is None:
-        return Json({'ok': False, 'message': 'invalid parameters'})
+        return Json({'ok': False, 'message': 'invalid parameters'}, 400)
     query = f'''
     SELECT
         COUNT(*) AS cnt

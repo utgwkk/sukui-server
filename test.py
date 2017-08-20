@@ -81,6 +81,11 @@ class AppTest(unittest.TestCase):
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
+    def test_search_images_with_empty_keyword(self):
+        rv = self.app.get('/sukui/api/images/search?keyword=')
+        resp_data = json.loads(rv.data)
+        self.assertFalse(resp_data['ok'])
+
     def test_search_images(self):
         rv = self.app.get(f'/sukui/api/images/search?keyword={quote("奈緒")}')
         resp_data = json.loads(rv.data)

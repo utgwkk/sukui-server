@@ -68,7 +68,7 @@ def search_images(count, max_id, since_id):
     _reversed = request.args.get('reversed', '0') == '1'
 
     keyword  = request.args.get("keyword")
-    if keyword is None:
+    if keyword is None or keyword.strip() == '':
         return Json({'ok': False, 'message': 'you must specify a keyword'}, 400)
     ngram_keyword = ngram(keyword)
 

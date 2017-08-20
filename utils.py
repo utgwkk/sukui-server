@@ -1,5 +1,4 @@
 import json
-import main
 import os
 import MySQLdb
 from functools import wraps
@@ -79,6 +78,22 @@ def build_range_query(max_id, since_id):
             return f'i.id <= {max_id}'
         else:
             return f'i.id > {since_id} AND i.id <= {max_id}'
+
+def build_keyword_query(keyword):
+    ret = []
+    keywords = keyword.split()
+    for kw in keywords:
+        if kw.startswith('-'):
+            kw = kw[1:]
+            ret.append(f'''
+            ii.comment NOT LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
+            ''')
+        else:
+            ret.append(f'''
+            MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(ngram(kw)).decode('utf-8')}' IN BOOLEAN MODE)
+            AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
+            ''')
+    return 'AND '.join(ret)
 
 def ngram(text):
     if len(text) <= 1:

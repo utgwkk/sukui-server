@@ -62,19 +62,21 @@ class AppTest(unittest.TestCase):
         rv = self.app.get('/sukui/api/images?max_id=40000')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
-        self.assertEqual(
-            40000,
-            resp_data['data'][0]['id']
-        )
+        for data in resp_data['data']:
+            self.assertLessEqual(
+                data['id'],
+                40000
+            )
 
     def test_get_images_reversed_since_id(self):
         rv = self.app.get('/sukui/api/images?since_id=40000&reversed=1')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
-        self.assertEqual(
-            40001,
-            resp_data['data'][0]['id']
-        )
+        for data in resp_data['data']:
+            self.assertGreater(
+                data['id'],
+                40000
+            )
 
     def test_search_images_without_keyword(self):
         rv = self.app.get('/sukui/api/images/search')
@@ -90,36 +92,75 @@ class AppTest(unittest.TestCase):
         rv = self.app.get(f'/sukui/api/images/search?keyword={quote("奈緒")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
-        self.assertIn(
-            "奈緒",
-            resp_data['data'][0]['comment']
-        )
+        for data in resp_data['data']:
+            self.assertIn(
+                "奈緒",
+                data['comment']
+            )
+
+    def test_search_images_with_length_1_query(self):
+        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("薫")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+        for data in resp_data['data']:
+            self.assertIn(
+                "薫",
+                data['comment']
+            )
+
+    def test_search_images_with_hyphen_query(self):
+        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("r-18")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+
+        for data in resp_data['data']:
+            # Case-insensitively comparison
+            self.assertIn(
+                "r-18",
+                data['comment'].lower()
+            )
+
+    def test_search_images_and_restriction(self):
+        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("仁奈 みりあ")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+        for data in resp_data['data']:
+            self.assertIn(
+                "仁奈",
+                data['comment']
+            )
+            self.assertIn(
+                "みりあ",
+                data['comment']
+            )
 
     def test_search_images_max_id(self):
         rv = self.app.get(f'/sukui/api/images/search?keyword={quote("奈緒")}&max_id=40000')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
-        self.assertIn(
-            "奈緒",
-            resp_data['data'][0]['comment']
-        )
-        self.assertLessEqual(
-            resp_data['data'][0]['id'],
-            40000
-        )
+        for data in resp_data['data']:
+            self.assertIn(
+                "奈緒",
+                data['comment']
+            )
+            self.assertLessEqual(
+                data['id'],
+                40000
+            )
 
     def test_search_images_reversed_since_id(self):
         rv = self.app.get(f'/sukui/api/images/search?keyword={quote("奈緒")}&since_id=40000&reversed=1')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
-        self.assertIn(
-            "奈緒",
-            resp_data['data'][0]['comment']
-        )
-        self.assertGreater(
-            resp_data['data'][0]['id'],
-            40000
-        )
+        for data in resp_data['data']:
+            self.assertIn(
+                "奈緒",
+                data['comment']
+            )
+            self.assertGreater(
+                data['id'],
+                40000
+            )
 
     def test_search_images_error_count_larger_than_200(self):
         rv = self.app.get('/sukui/api/images/search?keyword={quote("奈緒")}&count=201')

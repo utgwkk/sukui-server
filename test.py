@@ -3,6 +3,7 @@ import json
 from urllib.parse import quote
 import main
 
+
 class AppTest(unittest.TestCase):
     def setUp(self):
         main.app.testing = True
@@ -121,7 +122,8 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_and_restriction(self):
-        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("仁奈 みりあ")}')
+        rv = self.app.get(
+            f'/sukui/api/images/search?keyword={quote("仁奈 みりあ")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -135,7 +137,8 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_max_id(self):
-        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("奈緒")}&max_id=40000')
+        rv = self.app.get(
+            f'/sukui/api/images/search?keyword={quote("奈緒")}&max_id=40000')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -149,7 +152,10 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_reversed_since_id(self):
-        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("奈緒")}&since_id=40000&reversed=1')
+        rv = self.app.get(
+            f'/sukui/api/images/search'
+            '?keyword={quote("奈緒")}&since_id=40000&reversed=1'
+        )
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -163,17 +169,20 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_error_count_larger_than_200(self):
-        rv = self.app.get('/sukui/api/images/search?keyword={quote("奈緒")}&count=201')
+        rv = self.app.get(
+            '/sukui/api/images/search?keyword={quote("奈緒")}&count=201')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_search_images_error_count_smaller_than_1(self):
-        rv = self.app.get('/sukui/api/images/search?keyword={quote("奈緒")}&count=0')
+        rv = self.app.get(
+            '/sukui/api/images/search?keyword={quote("奈緒")}&count=0')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_search_images_error_count_invalid(self):
-        rv = self.app.get('/sukui/api/images/search?keyword={quote("奈緒")}&count=hoge')
+        rv = self.app.get(
+            '/sukui/api/images/search?keyword={quote("奈緒")}&count=hoge')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 

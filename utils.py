@@ -10,13 +10,19 @@ load_dotenv(find_dotenv())
 IMAGE_ENDPOINT = os.environ['IMAGE_ENDPOINT']
 THUMBNAIL_ENDPOINT = os.environ['THUMBNAIL_ENDPOINT']
 
+
 def Json(obj, status_code=200):
     def serialize(obj):
         # enable to serialize datetime object
         if isinstance(obj, datetime):
             return obj.isoformat()
-        raise TypeError(f"Object of type '{type(obj).name}' is not JSON serializable")
-    return Response(json.dumps(obj, default=serialize), mimetype='application/json'), status_code
+        raise TypeError(
+            f"Object of type '{type(obj).name}' is not JSON serializable")
+    return Response(
+        json.dumps(obj, default=serialize),
+        mimetype='application/json'
+    ), status_code
+
 
 def build_image_info(dic):
     if dic['image_info_id'] is None:
@@ -42,6 +48,7 @@ def build_image_info(dic):
             },
         }
 
+
 def build_range_query(max_id, since_id):
     if max_id is None:
         if since_id is None:
@@ -54,6 +61,7 @@ def build_range_query(max_id, since_id):
         else:
             return f'i.id > {since_id} AND i.id <= {max_id}'
 
+
 def build_keyword_query(keyword):
     ret = []
     keywords = keyword.split()
@@ -63,7 +71,8 @@ def build_keyword_query(keyword):
         if kw.startswith('-'):
             kw = kw[1:]
             ret.append(f'''
-            ii.comment NOT LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
+            ii.comment NOT LIKE
+            '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
             ''')
         elif kw == 'OR':
             next_or = True
@@ -74,13 +83,19 @@ def build_keyword_query(keyword):
 
             if '+' in kw or '-' in kw or '(' in kw or ')' in kw:
                 query += f'''
-                MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(kw).decode('utf-8')}' IN NATURAL LANGUAGE MODE)
-                AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
+                MATCH (ii.comment_ngram) AGAINST
+                ('{MySQLdb.escape_string(kw).decode('utf-8')}'
+                IN NATURAL LANGUAGE MODE)
+                AND ii.comment LIKE
+                '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
                 '''
             else:
                 query += f'''
-                MATCH (ii.comment_ngram) AGAINST ('{MySQLdb.escape_string(ngram(kw)).decode('utf-8')}' IN BOOLEAN MODE)
-                AND ii.comment LIKE '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
+                MATCH (ii.comment_ngram) AGAINST
+                ('{MySQLdb.escape_string(ngram(kw)).decode('utf-8')}'
+                IN BOOLEAN MODE)
+                AND ii.comment LIKE
+                '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
                 '''
             if next_or:
                 query += ') '
@@ -93,14 +108,18 @@ def build_keyword_query(keyword):
                 ret.append(query)
     return 'AND '.join(ret)
 
+
 def ngram(text):
     if len(text) <= 1:
         return f'{text}*'
     else:
         without_space = [x for x in text if x not in ' \t\r\n']
-        return '+' +  ' +'.join([x + y for x, y in zip(without_space, without_space[1:])])
+        return '+' + ' +'.join([
+            x + y for x, y in zip(without_space, without_space[1:])
+        ])
 
 # decorators
+
 
 def set_params(func):
     @wraps(func)
@@ -108,10 +127,16 @@ def set_params(func):
         try:
             count = int(request.args.get('count', 20))
         except Exception:
-            return Json({'ok': False, 'message': 'invalid count parameter'}, 400)
+            return Json({
+                'ok': False,
+                'message': 'invalid count parameter'
+            }, 400)
 
         if not 0 < count <= 200:
-            return Json({'ok': False, 'message': 'count must be larger than 0 and smaller or equal than 200'}, 400)
+            return Json({
+                'ok': False,
+                'message': 'count must be between 1 and 200'
+            }, 400)
 
         try:
             max_id = int(request.args.get('max_id'))

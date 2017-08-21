@@ -136,6 +136,16 @@ class AppTest(unittest.TestCase):
                 data['comment']
             )
 
+    def test_search_images_or_restriction(self):
+        rv = self.app.get(
+            f'/sukui/api/images/search?keyword={quote("仁奈 OR みりあ")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+        for data in resp_data['data']:
+            self.assertTrue(
+                "仁奈" in data['comment'] or "みりあ" in data['comment']
+            )
+
     def test_search_images_max_id(self):
         rv = self.app.get(
             f'/sukui/api/images/search?keyword={quote("奈緒")}&max_id=40000')

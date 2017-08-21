@@ -62,51 +62,82 @@ def build_range_query(max_id, since_id):
             return f'i.id > {since_id} AND i.id <= {max_id}'
 
 
+def build_match_unit(query, ex=False):
+    if ex:
+        return f"ii.comment NOT LIKE '%%{query}%%'"
+
+    if '-' in query or '+' in query or '(' in query or ')' in query:
+        return (
+            f"MATCH (ii.comment_ngram) AGAINST "
+            f"('{MySQLdb.escape_string(query).decode('utf-8')}' IN NATURAL LANGUAGE MODE) "
+            f"AND ii.comment LIKE '%%{MySQLdb.escape_string(query).decode('utf-8')}%%'"
+        )
+    else:
+        return (
+            f"MATCH (ii.comment_ngram) AGAINST "
+            f"('{MySQLdb.escape_string(ngram(query)).decode('utf-8')}' IN BOOLEAN MODE) "
+            f"AND ii.comment LIKE '%%{MySQLdb.escape_string(query).decode('utf-8')}%%'"
+        )
+
+
+def build_search_query_from_dic(dic):
+    ret = ""
+    xs = []
+
+    if dic.get('and'):
+        for a in dic['and']:
+            xs.append(build_match_unit(a))
+        ret += ' AND '.join(xs)
+
+    xs.clear()
+
+    if dic.get('or'):
+        if not ret:
+            ret += '('
+        else:
+            ret += ' AND ('
+
+        for o in dic['or']:
+            xs.append(build_match_unit(a))
+        ret += ' OR '.join(xs) + ')'
+
+    if dic.get('ex'):
+        if ret:
+            ret += ' AND '
+
+        for ex in dic['ex']:
+            xs.append(build_match_unit(ex, True))
+
+        ret += ' AND '.join(xs)
+
+    xs.clear()
+
+    return ret
+
+
 def build_keyword_query(keyword):
     ret = []
     keywords = keyword.split()
     next_or = False
+    query_dic = {
+        'and': [],
+        'or': [],
+        'ex': [],
+    }
 
     for kw in keywords:
         if kw.startswith('-'):
-            kw = kw[1:]
-            ret.append(f'''
-            ii.comment NOT LIKE
-            '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
-            ''')
+            query_dic['ex'].append(kw[1:])
         elif kw == 'OR':
             next_or = True
         else:
-            query = ''
             if next_or:
-                query += ' OR ('
-
-            if '+' in kw or '-' in kw or '(' in kw or ')' in kw:
-                query += f'''
-                MATCH (ii.comment_ngram) AGAINST
-                ('{MySQLdb.escape_string(kw).decode('utf-8')}'
-                IN NATURAL LANGUAGE MODE)
-                AND ii.comment LIKE
-                '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
-                '''
-            else:
-                query += f'''
-                MATCH (ii.comment_ngram) AGAINST
-                ('{MySQLdb.escape_string(ngram(kw)).decode('utf-8')}'
-                IN BOOLEAN MODE)
-                AND ii.comment LIKE
-                '%%{MySQLdb.escape_string(kw).decode('utf-8')}%%'
-                '''
-            if next_or:
-                query += ') '
+                query_dic['or'].append(kw)
                 next_or = False
-                if len(ret) > 0:
-                    ret[-1] += query
-                else:
-                    ret.append(query.replace(' OR (', '('))
             else:
-                ret.append(query)
-    return 'AND '.join(ret)
+                query_dic['and'].append(kw)
+
+    return build_search_query_from_dic(query_dic)
 
 
 def ngram(text):

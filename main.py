@@ -1,7 +1,31 @@
 import time
+import os
+import MySQLdb
 from flask import Flask, Response, request, g
 from utils import *
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 app = Flask(__name__)
+
+def connect_db():
+    kwargs = dict(
+        user=os.environ['DB_USER'],
+        passwd=os.environ['DB_PASSWD'],
+        unix_socket=os.environ['DB_SOCKET'],
+        db=os.environ['DB_NAME'],
+        use_unicode=True,
+        charset='utf8mb4',
+    )
+
+    if app.testing:
+        kwargs['db'] = os.environ['TEST_DB_NAME']
+
+    return MySQLdb.connect(**kwargs)
+
+def db():
+    if not hasattr(g, 'db_conn'):
+        g.db_conn = connect_db()
+    return g.db_conn.cursor(MySQLdb.cursors.DictCursor)
 
 @app.route('/sukui/api/image/<int:image_id>')
 def get_image(image_id):

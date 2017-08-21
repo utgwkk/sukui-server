@@ -10,31 +10,6 @@ load_dotenv(find_dotenv())
 IMAGE_ENDPOINT = os.environ['IMAGE_ENDPOINT']
 THUMBNAIL_ENDPOINT = os.environ['THUMBNAIL_ENDPOINT']
 
-def connect_db():
-    if os.environ.get('DB_SOCKET'):
-        return MySQLdb.connect(
-            user=os.environ['DB_USER'],
-            passwd=os.environ['DB_PASSWD'],
-            unix_socket=os.environ['DB_SOCKET'],
-            db=os.environ['DB_NAME'],
-            use_unicode=True,
-            charset='utf8mb4',
-        )
-    else:
-        return MySQLdb.connect(
-            user=os.environ['DB_USER'],
-            passwd=os.environ['DB_PASSWD'],
-            host=os.environ['DB_HOST'],
-            db=os.environ['DB_NAME'],
-            use_unicode=True,
-            charset='utf8mb4',
-        )
-
-def db():
-    if not hasattr(g, 'db_conn'):
-        g.db_conn = connect_db()
-    return g.db_conn.cursor(MySQLdb.cursors.DictCursor)
-
 def Json(obj, status_code=200):
     def serialize(obj):
         # enable to serialize datetime object

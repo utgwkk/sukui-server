@@ -1,8 +1,10 @@
 import time
 import os
 import MySQLdb
-from flask import Flask, Response, request, g
-from utils import *
+from flask import Flask, request, g
+from utils import (
+    Json, build_image_info, build_range_query, build_keyword_query, set_params
+)
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 app = Flask(__name__)
@@ -107,7 +109,6 @@ def search_images(count, max_id, since_id):
             'ok': False,
             'message': 'you must specify a keyword'
         }, 400)
-    ngram_keyword = ngram(keyword)
 
     range_query = build_range_query(max_id, since_id)
     keyword_query = build_keyword_query(keyword)

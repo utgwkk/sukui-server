@@ -98,7 +98,7 @@ def build_search_query_from_dic(dic):
             ret += ' AND ('
 
         for o in dic['or']:
-            xs.append(build_match_unit(a))
+            xs.append('(' + build_match_unit(o) + ')')
         ret += ' OR '.join(xs) + ')'
 
     if dic.get('ex'):
@@ -125,13 +125,13 @@ def build_keyword_query(keyword):
         'ex': [],
     }
 
-    for kw in keywords:
+    for kw, _next in zip(keywords, keywords[1:] + ['']):
         if kw.startswith('-'):
             query_dic['ex'].append(kw[1:])
         elif kw == 'OR':
             next_or = True
         else:
-            if next_or:
+            if next_or or _next == 'OR':
                 query_dic['or'].append(kw)
                 next_or = False
             else:

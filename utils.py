@@ -81,29 +81,29 @@ def build_match_unit(query, ex=False):
 
 
 def build_search_query_from_dic(dic):
-    ret = ""
+    ret = 'TRUE '
     xs = []
 
     if dic.get('and'):
+        ret += 'AND '
+
         for a in dic['and']:
             xs.append(build_match_unit(a))
+
         ret += ' AND '.join(xs)
 
     xs.clear()
 
     if dic.get('or'):
-        if not ret:
-            ret += '('
-        else:
-            ret += ' AND ('
+        ret += ' AND ('
 
         for o in dic['or']:
             xs.append('(' + build_match_unit(o) + ')')
+
         ret += ' OR '.join(xs) + ')'
 
     if dic.get('ex'):
-        if ret:
-            ret += ' AND '
+        ret += ' AND '
 
         for ex in dic['ex']:
             xs.append(build_match_unit(ex, True))

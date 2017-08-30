@@ -122,6 +122,22 @@ class AppTest(unittest.TestCase):
                 data['comment'].lower()
             )
 
+    def test_search_images_with_lunatic(self):
+        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("lunatic")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+        self.assertGreater(
+            len(resp_data['data']),
+            0
+        )
+
+        for data in resp_data['data']:
+            # Case-insensitively comparison
+            self.assertIn(
+                "lunat",
+                data['comment'].lower()
+            )
+
     def test_search_images_and_restriction(self):
         rv = self.app.get(
             f'/sukui/api/images/search?keyword={quote("仁奈 みりあ")}')

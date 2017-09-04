@@ -1,5 +1,7 @@
 import os
+import re
 import MySQLdb
+from unicodedata import normalize
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -32,6 +34,9 @@ def db():
 
 
 def ngram(text):
+    # Remove URL
+    text = re.sub(r'https?://[a-zA-Z0-9\./]+', '', text)
+
     without_space = [x for x in text if x not in ' \t\r\n']
     return ' '.join([x + y for x, y in zip(without_space, without_space[1:])])
 
@@ -43,10 +48,11 @@ def main():
         c.execute('SELECT id, comment FROM image_info '
                   'WHERE comment IS NOT NULL')
         for row in c.fetchall():
-            comment_norm = normalize(row['comment'], 'NFKD')
-            c.execute(f'UPDATE image_info SET '
+            # comment_norm = normalize('NFKD', row['comment'])
+            comment_norm = row['comment']
+            c.execute('UPDATE image_info SET '
                       'comment = %s, comment_ngram = %s '
-                      'WHERE id = {row["id"]}',
+                      f'WHERE id = {row["id"]}',
                       (comment_norm, ngram(comment_norm),))
     except Exception:
         print('ROLLBACK')

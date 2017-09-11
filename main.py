@@ -32,7 +32,7 @@ def db():
     return g.db_conn.cursor(MySQLdb.cursors.DictCursor)
 
 
-@app.route('/sukui/api/image/<int:image_id>')
+@app.route('/image/<int:image_id>')
 def get_image(image_id):
     image_id = int(image_id)
     query = '''
@@ -56,7 +56,7 @@ def get_image(image_id):
     return Json({'ok': True, 'data': build_image_info(result)})
 
 
-@app.route('/sukui/api/images')
+@app.route('/images')
 @set_params
 def get_images(count, max_id, since_id):
     _reversed = request.args.get('reversed', '0') == '1'
@@ -98,7 +98,7 @@ def get_images(count, max_id, since_id):
     })
 
 
-@app.route('/sukui/api/images/search')
+@app.route('/images/search')
 @set_params
 def search_images(count, max_id, since_id):
     _reversed = request.args.get('reversed', '0') == '1'

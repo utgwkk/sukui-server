@@ -14,7 +14,7 @@ class AppTest(unittest.TestCase):
         pass
 
     def test_get_image(self):
-        rv = self.app.get('/sukui/api/image/20000')
+        rv = self.app.get('/image/20000')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         self.assertEqual(
@@ -23,12 +23,12 @@ class AppTest(unittest.TestCase):
         )
 
     def test_get_image_not_found(self):
-        rv = self.app.get('/sukui/api/image/0')
+        rv = self.app.get('/image/0')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_get_images_default(self):
-        rv = self.app.get('/sukui/api/images')
+        rv = self.app.get('/images')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         self.assertEqual(
@@ -37,7 +37,7 @@ class AppTest(unittest.TestCase):
         )
 
     def test_get_images_count_200(self):
-        rv = self.app.get('/sukui/api/images?count=200')
+        rv = self.app.get('/images?count=200')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         self.assertEqual(
@@ -46,22 +46,22 @@ class AppTest(unittest.TestCase):
         )
 
     def test_get_images_error_count_larger_than_200(self):
-        rv = self.app.get('/sukui/api/images?count=201')
+        rv = self.app.get('/images?count=201')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_get_images_error_count_smaller_than_1(self):
-        rv = self.app.get('/sukui/api/images?count=0')
+        rv = self.app.get('/images?count=0')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_get_images_error_count_invalid(self):
-        rv = self.app.get('/sukui/api/images?count=hoge')
+        rv = self.app.get('/images?count=hoge')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_get_images_max_id(self):
-        rv = self.app.get('/sukui/api/images?max_id=40000')
+        rv = self.app.get('/images?max_id=40000')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -71,7 +71,7 @@ class AppTest(unittest.TestCase):
             )
 
     def test_get_images_reversed_since_id(self):
-        rv = self.app.get('/sukui/api/images?since_id=40000&reversed=1')
+        rv = self.app.get('/images?since_id=40000&reversed=1')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -81,17 +81,17 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_without_keyword(self):
-        rv = self.app.get('/sukui/api/images/search')
+        rv = self.app.get('/images/search')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_search_images_with_empty_keyword(self):
-        rv = self.app.get('/sukui/api/images/search?keyword=')
+        rv = self.app.get('/images/search?keyword=')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_search_images(self):
-        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("奈緒")}')
+        rv = self.app.get(f'/images/search?keyword={quote("奈緒")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -101,7 +101,7 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_with_length_1_query(self):
-        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("薫")}')
+        rv = self.app.get(f'/images/search?keyword={quote("薫")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -111,7 +111,7 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_with_hyphen_query(self):
-        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("r-18")}')
+        rv = self.app.get(f'/images/search?keyword={quote("r-18")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
 
@@ -123,7 +123,7 @@ class AppTest(unittest.TestCase):
             )
 
     def test_search_images_with_lunatic(self):
-        rv = self.app.get(f'/sukui/api/images/search?keyword={quote("lunatic")}')
+        rv = self.app.get(f'/images/search?keyword={quote("lunatic")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         self.assertGreater(
@@ -140,7 +140,7 @@ class AppTest(unittest.TestCase):
 
     def test_search_images_and_restriction(self):
         rv = self.app.get(
-            f'/sukui/api/images/search?keyword={quote("仁奈 みりあ")}')
+            f'/images/search?keyword={quote("仁奈 みりあ")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -155,7 +155,7 @@ class AppTest(unittest.TestCase):
 
     def test_search_images_or_restriction(self):
         rv = self.app.get(
-            f'/sukui/api/images/search?keyword={quote("仁奈 OR みりあ")}')
+            f'/images/search?keyword={quote("仁奈 OR みりあ")}')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -165,7 +165,7 @@ class AppTest(unittest.TestCase):
 
     def test_search_images_max_id(self):
         rv = self.app.get(
-            f'/sukui/api/images/search?keyword={quote("奈緒")}&max_id=40000')
+            f'/images/search?keyword={quote("奈緒")}&max_id=40000')
         resp_data = json.loads(rv.data)
         self.assertTrue(resp_data['ok'])
         for data in resp_data['data']:
@@ -180,7 +180,7 @@ class AppTest(unittest.TestCase):
 
     def test_search_images_reversed_since_id(self):
         rv = self.app.get(
-            f'/sukui/api/images/search'
+            f'/images/search'
             '?keyword={quote("奈緒")}&since_id=40000&reversed=1'
         )
         resp_data = json.loads(rv.data)
@@ -197,19 +197,19 @@ class AppTest(unittest.TestCase):
 
     def test_search_images_error_count_larger_than_200(self):
         rv = self.app.get(
-            '/sukui/api/images/search?keyword={quote("奈緒")}&count=201')
+            '/images/search?keyword={quote("奈緒")}&count=201')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_search_images_error_count_smaller_than_1(self):
         rv = self.app.get(
-            '/sukui/api/images/search?keyword={quote("奈緒")}&count=0')
+            '/images/search?keyword={quote("奈緒")}&count=0')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 
     def test_search_images_error_count_invalid(self):
         rv = self.app.get(
-            '/sukui/api/images/search?keyword={quote("奈緒")}&count=hoge')
+            '/images/search?keyword={quote("奈緒")}&count=hoge')
         resp_data = json.loads(rv.data)
         self.assertFalse(resp_data['ok'])
 

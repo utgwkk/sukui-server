@@ -48,6 +48,7 @@ def get_image(image_id):
     ON i.id = ii.image_id
     WHERE i.id = %s
     '''
+    app.logger.debug(f'Query: {query}' % image_id)
     c = db()
     c.execute(query, (image_id,))
     result = c.fetchone()
@@ -76,6 +77,7 @@ def get_images(count, max_id, since_id):
     {('WHERE ' + range_query) if range_query else ''}
     ORDER BY id {'ASC' if _reversed else 'DESC'} LIMIT %s
     '''
+    app.logger.debug(f'Query: {query}' % count)
     t_s = time.time()
     c = db()
     c.execute(query, (count,))
@@ -87,6 +89,7 @@ def get_images(count, max_id, since_id):
         COUNT(*) AS cnt
     FROM images
     '''
+    app.logger.debug(f'Query: {query}')
     c.execute(query)
     count = c.fetchone()['cnt']
     t_e = time.time()
@@ -129,6 +132,7 @@ def search_images(count, max_id, since_id):
     {('AND ' + range_query) if range_query else ''}
     ORDER BY id {'ASC' if _reversed else 'DESC'} LIMIT %s
     '''
+    app.logger.debug(f'Query: {query}')
     c = db()
     t_s = time.time()
     c.execute(query, (count,))
@@ -145,6 +149,7 @@ def search_images(count, max_id, since_id):
     WHERE
         {keyword_query}
     '''
+    app.logger.debug(f'Query: {query}')
     c.execute(query)
     count = c.fetchone()['cnt']
     t_e = time.time()

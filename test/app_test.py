@@ -8,6 +8,7 @@ import main
 class AppTest(unittest.TestCase):
     def setUp(self):
         main.app.testing = True
+        main.app.debug = True
         self.app = main.app.test_client()
 
     def tearDown(self):

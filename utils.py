@@ -66,7 +66,7 @@ def build_match_unit(query, ex=False):
     if ex:
         return f"ii.comment NOT LIKE '%%{query}%%'"
 
-    if '-' in query or '+' in query or '(' in query or ')' in query:
+    if '-' in query or '+' in query or '(' in query or ')' in query or '@' in query:
         return (
             f"MATCH (ii.comment_ngram) AGAINST "
             f"('{MySQLdb.escape_string(query).decode('utf-8')}' IN NATURAL LANGUAGE MODE) "

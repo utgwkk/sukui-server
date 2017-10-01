@@ -139,6 +139,22 @@ class AppTest(unittest.TestCase):
                 data['comment'].lower()
             )
 
+    def test_search_images_with_at(self):
+        rv = self.app.get(f'/images/search?keyword={quote("@a")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+        self.assertGreater(
+            len(resp_data['data']),
+            0
+        )
+
+        for data in resp_data['data']:
+            # Case-insensitively comparison
+            self.assertIn(
+                "@a",
+                data['comment'].lower()
+            )
+
     def test_search_images_and_restriction(self):
         rv = self.app.get(
             f'/images/search?keyword={quote("仁奈 みりあ")}')

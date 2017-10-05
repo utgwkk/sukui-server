@@ -2,14 +2,14 @@ import unittest
 import json
 from urllib.parse import quote
 import helper
-import main
+import api
 
 
 class AppTest(unittest.TestCase):
     def setUp(self):
-        main.app.testing = True
-        main.app.debug = True
-        self.app = main.app.test_client()
+        api.app.testing = True
+        api.app.debug = True
+        self.app = api.app.test_client()
 
     def tearDown(self):
         pass

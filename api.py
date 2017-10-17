@@ -1,7 +1,7 @@
 import time
 import os
 import MySQLdb
-from flask import Flask, request, g
+from flask import Flask, request, g, Response
 from utils import (
     Json, build_image_info, build_range_query, build_keyword_query, set_params
 )
@@ -30,6 +30,11 @@ def db():
     if not hasattr(g, 'db_conn'):
         g.db_conn = connect_db()
     return g.db_conn.cursor(MySQLdb.cursors.DictCursor)
+
+
+@app.route('/ping')
+def ping():
+    return Response('pong', mimetype='text/plain')
 
 
 @app.route('/image/<int:image_id>')

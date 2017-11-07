@@ -10,4 +10,4 @@ uWSGI = "*"
 slackclient = "*"
 
 [dev-packages]
-nose = "*"
+pytest = "*"

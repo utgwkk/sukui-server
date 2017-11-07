@@ -41,7 +41,7 @@ def ping():
 def get_image(image_id):
     image_id = int(image_id)
     query = '''
-    SELECT SQL_CACHE
+    SELECT
         i.id AS id
       , i.filename AS filename
       , i.created_at AS created_at
@@ -69,7 +69,7 @@ def get_images(count, max_id, since_id):
 
     range_query = build_range_query(max_id, since_id)
     query = f'''
-    SELECT SQL_CACHE
+    SELECT
         i.id AS id
       , i.filename AS filename
       , i.created_at AS created_at
@@ -90,7 +90,7 @@ def get_images(count, max_id, since_id):
     if result is None:
         return Json({'ok': False, 'message': 'invalid parameters'}, 400)
     query = f'''
-    SELECT SQL_CACHE
+    SELECT
         COUNT(*) AS cnt
     FROM images
     '''

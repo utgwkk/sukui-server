@@ -72,6 +72,11 @@ def build_match_unit(query, ex=False):
             f"('{MySQLdb.escape_string(query).decode('utf-8')}' IN NATURAL LANGUAGE MODE) "
             f"AND ii.comment LIKE '%%{MySQLdb.escape_string(query).decode('utf-8')}%%'"
         )
+    elif '♂' in query:
+        # FIXME: want to search with ♂ alone using fulltext index
+        return (
+            f"ii.comment LIKE '%%{MySQLdb.escape_string(query).decode('utf-8')}%%'"
+        )
     else:
         return (
             f"MATCH (ii.comment) AGAINST "

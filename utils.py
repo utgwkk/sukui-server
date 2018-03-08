@@ -120,7 +120,7 @@ def build_search_query_from_dic(dic):
     return ret
 
 
-def build_keyword_query(keyword):
+def build_keyword_query_dic(keyword):
     ret = []
     keywords = keyword.split()
     next_or = False
@@ -142,6 +142,11 @@ def build_keyword_query(keyword):
             else:
                 query_dic['and'].append(kw)
 
+    return query_dic
+
+
+def build_keyword_query(keyword):
+    query_dic = build_keyword_query_dic(keyword)
     return build_search_query_from_dic(query_dic)
 
 

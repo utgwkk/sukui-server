@@ -123,7 +123,6 @@ def build_search_query_from_dic(dic):
 def build_keyword_query_dic(keyword):
     ret = []
     keywords = keyword.split()
-    next_or = False
     query_dic = {
         'and': [],
         'or': [],
@@ -131,14 +130,13 @@ def build_keyword_query_dic(keyword):
     }
 
     for kw, _next in zip(keywords, keywords[1:] + ['']):
+        if kw == 'OR':
+            continue
         if kw.startswith('-'):
             query_dic['ex'].append(kw[1:])
-        elif kw == 'OR':
-            next_or = True
         else:
-            if next_or or _next == 'OR':
+            if _next == 'OR':
                 query_dic['or'].append(kw)
-                next_or = False
             else:
                 query_dic['and'].append(kw)
 

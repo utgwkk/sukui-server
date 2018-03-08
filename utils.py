@@ -107,6 +107,8 @@ def build_search_query_from_dic(dic):
 
         ret += ' OR '.join(xs) + ')'
 
+    xs.clear()
+
     if dic.get('ex'):
         ret += ' AND '
 

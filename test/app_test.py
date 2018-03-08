@@ -196,6 +196,31 @@ class AppTest(unittest.TestCase):
                 "仁奈" in data['comment'] or "みりあ" in data['comment']
             )
 
+    def test_search_images_and_restriction_with_direct_query(self):
+        rv = self.app.get(
+            f'/images/search?all={quote("仁奈 みりあ")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+        for data in resp_data['data']:
+            self.assertIn(
+                "仁奈",
+                data['comment']
+            )
+            self.assertIn(
+                "みりあ",
+                data['comment']
+            )
+
+    def test_search_images_or_restriction_with_direct_query(self):
+        rv = self.app.get(
+            f'/images/search?any={quote("仁奈 みりあ")}')
+        resp_data = json.loads(rv.data)
+        self.assertTrue(resp_data['ok'])
+        for data in resp_data['data']:
+            self.assertTrue(
+                "仁奈" in data['comment'] or "みりあ" in data['comment']
+            )
+
     def test_search_images_max_id(self):
         rv = self.app.get(
             f'/images/search?keyword={quote("奈緒")}&max_id=40000')

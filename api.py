@@ -3,7 +3,8 @@ import os
 import MySQLdb
 from flask import Flask, request, g, Response
 from utils import (
-    Json, build_image_info, build_range_query, build_keyword_query, set_params
+    Json, build_image_info, build_range_query, build_keyword_query,
+    build_search_query_from_dic, set_params
 )
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
@@ -111,15 +112,26 @@ def get_images(count, max_id, since_id):
 def search_images(count, max_id, since_id):
     _reversed = request.args.get('reversed', '0') == '1'
 
-    keyword = request.args.get("keyword")
-    if keyword is None or keyword.strip() == '':
+    keyword = request.args.get("keyword", "").strip()
+    and_keyword = request.args.get("all", "").strip()
+    or_keyword = request.args.get("any", "").strip()
+    not_keyword = request.args.get("ex", "").strip()
+    if keyword:
+        keyword_query = build_keyword_query(keyword)
+    elif and_keyword or or_keyword or not_keyword:
+        query_dic = {
+            "and": and_keyword.split(),
+            "or": or_keyword.split(),
+            "ex": not_keyword.split(),
+        }
+        keyword_query = build_search_query_from_dic(query_dic)
+    else:
         return Json({
             'ok': False,
             'message': 'you must specify a keyword'
         }, 400)
 
     range_query = build_range_query(max_id, since_id)
-    keyword_query = build_keyword_query(keyword)
 
     query = f'''
     SELECT

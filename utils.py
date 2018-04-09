@@ -81,7 +81,6 @@ def build_match_unit(query, ex=False):
         return (
             f"MATCH (ii.comment) AGAINST "
             f"('{MySQLdb.escape_string(ngram(query)).decode('utf-8')}' IN BOOLEAN MODE) "
-            f"AND ii.comment LIKE '%%{MySQLdb.escape_string(query).decode('utf-8')}%%'"
         )
 
 

@@ -11,3 +11,4 @@ slackclient = "*"
 
 [dev-packages]
 pytest = "*"
+pylint = "*"

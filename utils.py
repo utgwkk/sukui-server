@@ -20,7 +20,10 @@ def Json(obj, status_code=200):
             f"Object of type '{type(obj).name}' is not JSON serializable")
     return Response(
         json.dumps(obj, default=serialize),
-        mimetype='application/json'
+        mimetype='application/json',
+        headers={
+            'Access-Control-Allow-Origin': '*',
+        },
     ), status_code
 
 

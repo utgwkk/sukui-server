@@ -15,7 +15,8 @@ def connect_db():
     kwargs = dict(
         user=os.environ['DB_USER'],
         passwd=os.environ['DB_PASSWD'],
-        unix_socket=os.environ['DB_SOCKET'],
+        host=os.environ['DB_HOST'],
+        port=int(os.environ['DB_PORT']),
         db=os.environ['DB_NAME'],
         use_unicode=True,
         charset='utf8mb4',
